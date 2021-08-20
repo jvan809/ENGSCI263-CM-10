@@ -45,9 +45,13 @@ def model(t, X, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
     # check if q_stm and q_out are functions
     if not callable(q_stm):
         q_stm_function = lambda t: q_stm # if q_stm is a constant make it a function
+    else: 
+        q_stm_function = q_stm # otherwise leave it as a function
 
     if not callable(q_stm):
-        q_out_function = lambda t: q_out # if q_out is a constant make it a function
+        q_out_function = q_out # if q_out is a constant make it a function
+    else: 
+        q_out_function = q_out # otherwise leave it as a function
 
     P, T = X # unpack array of pressure and temperature
 
