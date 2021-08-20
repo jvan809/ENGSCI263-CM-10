@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import scipy as sp
 from scipy.integrate import solve_ivp
 
-def model(t, X, q_stm, q_out, aP, bP, P0, M0, Tstm, T0, bT):
+def model(t, X, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
     """
     The model giving the derivaitves for the differential equation
     
@@ -17,18 +17,18 @@ def model(t, X, q_stm, q_out, aP, bP, P0, M0, Tstm, T0, bT):
             Pressure of the system (Pa)
         T : double
             Temperature of the system  (deg C)
-    q_stm : callable
-        Flow of steam into the system (m^3/s)
-    q_out : callable
-        Flow of water and bitumen out of the system (m^3/s)
+    q_stm : callable or double
+        Flow of steam into the system as a function of time(m^3/s)
+    q_out : callable or double
+        Flow of water and bitumen out of the system as a function of time(m^3/s)
+    Tstm : double
+        Injected Steam Temperature (deg C)
     aP, bP : double
         Lumped Parameters for Pressure Equation (units Pa/(m^3) and s^-1 respectively)
     P0 : double
         Ambient pressure of the recharge reservoir  (Pa)
     M0 : double
         Reservoir mass (kg)
-    Tstm : double
-        Injected Steam Temperature (deg C)
     T0 : double
         Ambient Temperature of the recharge reservoir (deg C)
     bT : double
@@ -42,24 +42,77 @@ def model(t, X, q_stm, q_out, aP, bP, P0, M0, Tstm, T0, bT):
         Derivative of Temperature w.r.t time (deg C/s)
     """
 
+    # check if q_stm and q_out are functions
+    if not callable(q_stm):
+        q_stm_function = lambda t: q_stm # if q_stm is a constant make it a function
+
+    if not callable(q_stm):
+        q_out_function = lambda t: q_out # if q_out is a constant make it a function
+
     P, T = X # unpack array of pressure and temperature
 
-    dPdt = aP*(q_out - q_stm) - bP * (P - P0) # pressure differential equation
+    dPdt = aP*(q_out_function(t) - q_stm_function(t)) - bP * (P - P0) # pressure differential equation
 
-    Tprime = T if (P>P0) else T0 # changes depending on whether the    
+    Tprime = T if (P>P0) else T0 # changes depending on whether the Pressure is causing fluid to flow in or out of the system
 
-    dTdt = (q_stm / M0) * (Tstm - T) - (bP / (aP * M0)) * (P - P0) * (Tprime - T) - bT *(T - T0)
+    dTdt = (q_stm_function(t) / M0) * (Tstm - T) - (bP / (aP * M0)) * (P - P0) * (Tprime - T) - bT *(T - T0) # temperature differential equaiton
 
     dXdt = [dPdt, dTdt]
     return dXdt
 
 
-def solve_ode_scipy(model, interval, Pi, Ti, pars, t_eval = None):
+def solve_ode_scipy(model, t0, t1, Pi, Ti, pars, time_eval = None):
+    """
+    Finds the solution to the model differential equation
+    
+    inputs:
+    -------
+    model : callable
+        function giving the derivative at some point
+    t0 : float
+        initial time
+    t1 : float
+        final time 
+    Pi : float
+        Pressure at time = t0
+    Ti : float
+        Temperature at time = t0
+    pars : array
+        array containing all the free parameters in the model
+    t_eval : array (optional)
+        specific times where we want the solution to be found
 
-    Xi = np.array([Pi, Ti])
-    arg = tuple(pars)
-    time = tuple(interval)
-    ode = solve_ivp(model, time, Xi, dense_output=True)
+    outputs:
+    --------
+    t : array
+        times which the solution was evaluated
+    P : array
+        Solved Pressures at times t
+    T : array
+        solved temperatures at times t
+    sol : callable
+        function evaluating the pressure and temperature at any time 
+
+    """
+    Xi = np.array([Pi, Ti]) # put the initial condition into an array
+
+    pars = tuple(pars) # the solve_ivp function needs the pars and times to be in a tuple
+    time = tuple([t0,t1])
+
+    # solve the model ode
+    # (dense_output = True allows the sol function to be used which lets you evaluate
+    # the solution at any time)
+    ode = solve_ivp(model, time, Xi, args=pars, dense_output=True, t_eval=time_eval)
+    
+    t = ode.t # array of times
+    X = ode.y # array containing both the temperature and pressure solutions
+
+    P = X[0,:] # pressure solution
+    T = X[1,:] # temperature solution
+
+    sol = ode.sol # function evaluating the solution at any time t
+
+    return t, P, T, sol
 
 
 
