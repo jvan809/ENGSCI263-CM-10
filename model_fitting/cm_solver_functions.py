@@ -124,7 +124,7 @@ def ode_solve(model, t0, t1, Pi, Ti, pars, time_eval = None):
 
 
 ##############################################################################################################
-'''This is the improved euler solver from the lab which we can use if the above funciton doesn't work'''
+'''This is the improved euler solver from the lab which we can use (with modification) if the above funciton doesn't work'''
 # def solve_ode(f, t0, t1, dt, x0, pars, q=None):
 #     ''' Solve an ODE numerically.
 
