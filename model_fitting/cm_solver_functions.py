@@ -53,16 +53,14 @@ def model(t, X, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
     else: 
         q_out_function = q_out # otherwise leave it as a function
 
-    q_out_function(1)
-    q_stm_function(1)
 
     P, T = X # unpack array of pressure and temperature
 
-    dPdt = aP*(q_out_function(t) - q_stm_function(t)) - bP * (P - P0) # pressure differential equation
+    dPdt = -aP * (q_out_function(t) - q_stm_function(t)) - bP * (P - P0) # pressure differential equation
 
     Tprime = T if (P>P0) else T0 # changes depending on whether the Pressure is causing fluid to flow in or out of the system
 
-    dTdt = (q_stm_function(t) / M0) * (Tstm - T) - (bP / (aP * M0)) * (P - P0) * (Tprime - T) - bT *(T - T0) # temperature differential equaiton
+    dTdt = (q_stm_function(t) / M0) * (Tstm - T) - (bP / (aP * M0)) * (P - P0) * (Tprime - T) - bT * (T - T0) # temperature differential equaiton
 
     dXdt = [dPdt, dTdt]
     return dXdt
@@ -97,8 +95,7 @@ def ode_solve(model, t0, t1, Pi, Ti, pars, time_eval = None):
         Solved Pressures at times t
     T : array
         solved temperatures at times t
-    sol : callable
-        function evaluating the pressure and temperature at any time 
+
 
     """
     Xi = np.array([Pi, Ti]) # put the initial condition into an array
@@ -117,9 +114,9 @@ def ode_solve(model, t0, t1, Pi, Ti, pars, time_eval = None):
     P = X[0,:] # pressure solution
     T = X[1,:] # temperature solution
 
-    sol = ode.sol # function evaluating the solution at any time t
+    
 
-    return t, P, T, sol
+    return t, P, T
 
 
 
