@@ -60,7 +60,7 @@ def model(t, X, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
 
     Tprime = T if (P>P0) else T0 # changes depending on whether the Pressure is causing fluid to flow in or out of the system
 
-    dTdt = (q_stm_function(t) / M0) * (Tstm - T) - (bP / (aP * M0)) * (P - P0) * (Tprime - T) - bT * (T - T0) # temperature differential equaiton
+    dTdt = (q_stm_function(t)) /(M0) * (Tstm - T) - (bP / (aP * M0)) * (P - P0) * (Tprime - T) - bT * (T - T0) # temperature differential equaiton
 
     dXdt = [dPdt, dTdt]
     return dXdt

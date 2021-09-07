@@ -43,28 +43,37 @@ def interpolate_data():
     q_oil : callable
         interpolated oil flow 
     q_stm : callable
-        interpolated oil flow         
+        interpolated steam flow  
+    q_wat : callable
+        interpolated water flow         
+    tP : array
+        times at which the temperature and pressure were evaluated
+    Xint : array
+        Pressures and temperatures evaluated at the same times
     """
-    filenames = ["tr_oil", "tr_p", "tr_steam", "tr_T", "tr_water"]
-    filenames = ["." + os.sep + "data" + os.sep + f + ".txt" for f in filenames]
+    filenames = ["tr_oil", "tr_p", "tr_steam", "tr_T", "tr_water"] # list of files with the needed data
+    filenames = ["." + os.sep + "data" + os.sep + f + ".txt" for f in filenames] # parse these into the correct format
 
+    # get the data from each file
     to, qo = get_data(filenames[0])
     tP, P_data = get_data(filenames[1])
     ts, qs = get_data(filenames[2])
     tT, T_data = get_data(filenames[3])
     tw, qw = get_data(filenames[4])
 
+
+    # interpolate all the data
     q_oil = interp1d(to, qo, fill_value = 0, bounds_error=False)
     Pr = interp1d(tP, P_data)
     q_stm = interp1d(ts, qs, fill_value = 0, bounds_error=False)
     Te = interp1d(tT, T_data)
     q_wat = interp1d(tw, qw, fill_value = 0, bounds_error=False)
     
-    T_inter = Te(tP)
-    Xi = np.array([P_data, T_inter])
+    T_inter = Te(tP) # evaluate the temperature at the time when the pressure was evaluated
+    Xint = np.array([P_data, T_inter]) # combine the pressure and temperature into one array
 
 
-    return q_oil, q_stm, q_wat, tP, Xi
+    return q_oil, q_stm, q_wat, tP, Xint
 
 
 
