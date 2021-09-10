@@ -150,9 +150,9 @@ def ode_solve(model, t0, t1, Pi, Ti, pars, time_eval = None):
 #     if q is None: q = -np.ones(len(t)) # this function gives the value of q at time t
 
 #     for i in range(len(t)-1):
-#         k1 = f(t[i], x[i], q[i], *pars)            # /\
+#         k1 = f(t[i], x[i], q[i], *pars)             # /\
 #         k2 = f(t[i+1], x[i] + k1*dt, q[i+1], *pars) # equations for the improved Euler method
-#         x[i+1] = x[i] + dt*(k1+k2)/2                      # \/
+#         x[i+1] = x[i] + dt*(k1+k2)/2                # \/
 #     return t,x
 ##############################################################################################################
 
