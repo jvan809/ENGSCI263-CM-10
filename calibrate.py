@@ -4,6 +4,19 @@ from scipy.optimize import curve_fit
 
 
 def misfit(Tstm, num_pars, init_is_pars=False):
+    '''
+    Calculates the misfit function of a given model
+
+    inputs:
+    -------
+    Tstm : float
+        Temperature of injected steam
+    num_pars : numpy array
+        Array of parameters for the numerical model
+    init_is_pars : boolean
+        True indicates that the parameters are in teh form [Pi, aP, bP, P0, Ti, M0, T0, bT], 
+        otherwise parameters are assumed to be of the form [aP, bP, P0, M0, T0, bT] and Pi, Ti are assumed to be X0[0,0];X0[1,0]
+    '''
     q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
     
     q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
@@ -171,35 +184,38 @@ if __name__ == "__main__":
 
     # p = [1.21156628e-01, 3.06502388e-02, 6.61704220e+02, 5.20398876e+03, 1.44063625e+02, 4.41090440e-02] # OPTIMAL SET OF PARAMETERS
    
-    # pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
-    #         [-1.08497587e-08,  1.19555937e-09, -5.37910126e-04],
-    #         [-4.06830883e-01, -5.37910126e-04 , 2.40294395e+03]]
+    # # pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
+    # #         [-1.08497587e-08,  1.19555937e-09, -5.37910126e-04],
+    # #         [-4.06830883e-01, -5.37910126e-04 , 2.40294395e+03]]
    
    
-    # tcov = [[ 4.02138041e+03, -1.75419958e+01,  1.08953251e-01],
-    #         [-1.75419958e+01,  5.30715709e+00,  1.05492717e-03],
-    #         [ 1.08953251e-01,  1.05492717e-03 , 3.40814200e-06]]
-    pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
-    Pi = 1.44320757e+03
-    Ti = 1.92550478e+02
-    pars = [1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
-    S = misfit(260, pars, init_is_pars=True)
-    print(S)    
+    # # tcov = [[ 4.02138041e+03, -1.75419958e+01,  1.08953251e-01],
+    # #         [-1.75419958e+01,  5.30715709e+00,  1.05492717e-03],
+    # #         [ 1.08953251e-01,  1.05492717e-03 , 3.40814200e-06]]
+    # pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] # optimal set of parameters with the initial conditions variable
+    # Pi = 1.44320757e+03 #| initial conditions computed with the fit model function
+    # Ti = 1.92550478e+02 #|
+    # pars = [1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
+    # S = misfit(260, p, init_is_pars=False)
+    # print(S)    
     
     q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
     q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
 
 
-    model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 260, aP, bP, P0, M0, T0, bT)
+    #model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 260, aP, bP, P0, M0, T0, bT)
 
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
     
+    test = lambda t: (1 - 0.11051709180756478*np.exp(-0.1*np.exp(-t) - t))
+    tests = test(np.linspace(0,10,10000))
     plt1 = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
     plt2 = ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
-    tt, P, T = ode_solve(model_, tt0[0], 400, Pi, Ti, pp)
+    tt, P, T = ode_solve(model, 0, 10, 0.1, 0.9, [-1,0,1,1,1,1,1,1,1], time_eval=np.linspace(0,10,10000))
     plt3 = ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
     plt4 = ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
+    plt45 = ax2.plot(tt, tests, "r", label = "Temperature Numerical Sol")
    # ax1.plot(tt, q_out(tt), "g")
     plts = plt1 + plt2 + plt3 + plt4 
     labs = [l.get_label() for l in plts]
