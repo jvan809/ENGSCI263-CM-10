@@ -19,6 +19,39 @@ from scipy.optimize.nonlin import nonlin_solve
 from cm_solver_functions import *
 
 
+def pressure_analytical(t):
+    '''
+    Analytical pressure solution for parameters [-1,0,1,1,1,1,1,1,1]
+
+    inputs:
+    -------
+    t : float
+        time at which the solution is evaluated
+
+    outputs:
+    --------
+    P : float
+        Pressure at time t
+    '''  
+    return 0.1*np.exp(-t)
+
+def temperature_analytical(t):
+    '''
+    Analytical temperature solution for parameters [-1,0,1,1,1,1,1,1,1]
+
+    inputs:
+    -------
+    t : float
+        time at which the solution is evaluated
+
+    outputs:
+    --------
+    T : float
+        Temperature at time t
+    '''
+    return  1-(0.11051709180756478*np.exp(-0.1*np.exp(-t)-t))
+
+
 def plot_benchmark():
     ''' Compare analytical and numerical solutions.
 
@@ -38,17 +71,10 @@ def plot_benchmark():
         plot these, and either display the plot to the screen or save it to the disk.
         
     '''
-    t_analytical = np.zeros(1000)
-    pre_analytical = np.zeros(1000)
-    tmp_analytical = np.zeros(1000)
-    for i in range(0,1000):
-        t_analytical[i] = i/100
-        pre_analytical[i] = 0.1*np.exp(-i/100)
-
-    for i in range(0, 1000):
-        t_analytical[i] = i/100
-        tmp_analytical[i]= 1-(0.1105*np.exp(-0.1*np.exp(-i/100)-i/100))
-
+    t_analytical = np.linspace(0,10,1000)
+    pre_analytical = pressure_analytical(t_analytical)
+    tmp_analytical = temperature_analytical(t_analytical)
+    
     time, pressure, temp = ode_solve(model, 0, 10 ,0.1 ,0.9 ,[-1,0,1,1,1,1,1,1,1])
 
     f, ax = plt.subplots(1,1)

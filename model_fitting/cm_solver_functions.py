@@ -119,9 +119,6 @@ def ode_solve(model, t0, t1, Pi, Ti, pars, time_eval = None):
     return t, P, T
 
 
-
-##############################################################################################################
-'''This is the improved euler solver from the lab which we can use (with modification) if the above funciton doesn't work'''
 def improved_euler(f, t0, t1, dt, x0, pars, q=None):
     ''' Solve an ODE numerically.
 
@@ -154,7 +151,7 @@ def improved_euler(f, t0, t1, dt, x0, pars, q=None):
         k2 = f(t[i+1], x[i] + k1*dt, q[i+1], *pars) # equations for the improved Euler method
         x[i+1] = x[i] + dt*(k1+k2)/2                # \/
     return t,x
-##############################################################################################################
+
 
 if __name__ == "__main__":
     print(model([1,1],1 ,1,1,1,1,1,1,1,1,1))
