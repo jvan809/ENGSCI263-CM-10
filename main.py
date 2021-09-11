@@ -3,10 +3,10 @@ from calibrate import *
 from prediction.cycle import *
 from model_fitting.cm_solver_functions import *
 from data.interpolate_data import *
-from scipy.optimize import curve_fit
+from matplotlib.pyplot import *
 
-
-
+# this file should be able to produce all figures included in reports **without modification**
+# TODO: add plot_data plots
 
 
 
@@ -53,15 +53,23 @@ if __name__ == "__main__":
 
     normModels = normSample(pp, pcov, tcov, 100)
 
+    maxTemps = []
 
     for params in normModels:
         _, p, t = ode_solve(model_, tt0[0], 400, Pi, Ti, params, tt)
         ax1.plot(tt,p,'k-', lw=0.25,alpha=0.2)
         ax2.plot(tt,t,'r-', lw=0.25,alpha=0.2)
+        maxTemps.append(max(t))
     
     ax1.plot([],[],'k-', lw=0.5,alpha=0.4, label='model ensemble (P)')
     ax2.plot([],[],'r-', lw=0.5,alpha=0.4, label='model ensemble (T)')
 
 
+    plt.show()
+
+    # plots the pdf histogram
+    plt.hist(maxTemps, density = True)
 
     plt.show()
+
+

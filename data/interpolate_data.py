@@ -61,6 +61,9 @@ def interpolate_data():
     tT, T_data = get_data(filenames[3])
     tw, qw = get_data(filenames[4])
 
+    # fix units for steam
+    #qs = qs*2.4527886845*1000 # from steam calculator for specific volume - tonnes * 2.45 m^3/kg * 1000 kg / tonne
+    # assumes constant input pressure (Should this be the same as system pressure??)
 
     # interpolate all the data
     q_oil = interp1d(to, qo, fill_value = 0, bounds_error=False)
