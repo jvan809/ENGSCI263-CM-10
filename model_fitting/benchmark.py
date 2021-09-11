@@ -149,16 +149,13 @@ def plot_benchmark():
     tmp_analytical = np.zeros(1000)
     for i in range(0,1000):
         t_analytical[i] = i/100
-        pre_analytical[i] = -(1-np.exp(-i/100))
+        pre_analytical[i] = 0.1*np.exp(-i/100)
 
     for i in range(0, 1000):
         t_analytical[i] = i/100
-        tmp_analytical[i]= (-1-0.8*(np.exp(-i)))/(-1-0.1*(np.exp(-i)))
+        tmp_analytical[i]= 1-(0.1105*np.exp(-0.1*np.exp(-i/100)-i/100))
 
-    time, pressure, temp = ode_solve(ode_model, 0, 10 ,0.1 ,0 ,[-1,1,1,1,1,1,1,1,1])
-
-    # ode_solve(model, t0, t1, Pi, Ti, pars, time_eval = None):
-    # ode_model(t, X, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT)
+    time, pressure, temp = ode_solve(ode_model, 0, 10 ,0.1 ,0.9 ,[-1,0,1,1,1,1,1,1,1])
 
     f, ax = plt.subplots(1,1)
     # pressure
@@ -175,7 +172,7 @@ def plot_benchmark():
 
     return None
 
-def solve_ode(f, t0, t1, dt, x0, pars, q=None):
+def improved_euler(f, t0, t1, dt, x0, pars, q=None):
     ''' Solve an ODE numerically.
 
         Parameters:
