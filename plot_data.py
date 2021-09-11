@@ -60,4 +60,4 @@ def plot_given_q_data():
 
 if __name__ == "__main__":
     plot_given_TP_data()
-    # plot_given_q_data()
+    plot_given_q_data()
