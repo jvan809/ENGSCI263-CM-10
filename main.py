@@ -3,10 +3,9 @@ from calibrate import *
 from prediction.cycle import *
 from model_fitting.cm_solver_functions import *
 from data.interpolate_data import *
-from scipy.optimize import curve_fit
 
-
-
+# this file should be able to produce all figures included in reports **without modification**
+# TODO: add plot_data plots
 
 
 
