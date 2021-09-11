@@ -1,14 +1,3 @@
-# ENGSCI263: Lab Exercise 2
-# lab2.py
-
-# PURPOSE:
-# IMPLEMENT a lumped parameter model and CALIBRATE it to data.
-
-# PREPARATION:
-# Review the lumped parameter model notes and use provided data from the kettle experiment.
-
-# SUBMISSION:
-# - Show your calibrated LPM to the instructor (in Week 3).
 
 # imports
 import numpy as np
@@ -91,37 +80,6 @@ def plot_benchmark():
     plt.show()
 
     return None
-    
-def plot_kettle_model():
-    ''' Plot the kettle LPM over top of the data.
-
-        Parameters:
-        -----------
-        none
-
-        Returns:
-        --------
-        none
-
-        Notes:
-        ------
-        This function called within if __name__ == "__main__":
-
-        It should contain commands to read and plot the experimental data, run and 
-        plot the kettle LPM for hard coded parameters, and then either display the 
-        plot to the screen or save it to the disk.
-    '''
-    a = 10.8/(1000*4200*0.005)
-    b = 0.0006
-    pars = [0,a,b,22]
-    time, pressure, temp = ode_solve(ode_model, 0,10,0.1,0,[-1,1,1,1,1,1,1,1,1])
-
-    plt.subplot(1, 1, 1)
-    plt.plot(time, temp, label='Model')
-    plt.legend()
-    plt.xlabel('Time, s')
-    plt.ylabel('Temperature, celsius')
-    plt.show()
 
 if __name__ == "__main__":
     # plot_kettle_model()
