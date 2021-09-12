@@ -2,36 +2,26 @@ from sensitivityAnalysis import sensitivityAnalysis
 from prediction.uncertanity import *
 from calibrate import *
 from prediction.cycle import *
+from model_fitting.benchmark import *
 from model_fitting.cm_solver_functions import *
 from data.interpolate_data import *
 from matplotlib.pyplot import *
 from plot_data import *
 from sensitivityAnalysis import *
-# this file should be able to produce all figures included in reports **without modification**
-# Graphs Used in template report:
-#   production & pressure - could be production / injection + temp?
-#   best fit of first version of model + misfit over time
-#   as before with improved model (+ inital allowed to vary)
-#   prediction with varied scenarios (unchanged, constant max, similar to before scaled up??)
-#   as before with ensemble modelling
-#   posterior dist of one parameter (possibly not needed for this application)
-#   - I'd like to add dist of max temp for max all the time scenario
-
-
 
 
 
 if __name__ == "__main__":
 
 
-    sensitivityAnalysis()
 
     # plot the pilot data given to us
     plot_given_TP_data() # temperature and pressure data
     plot_given_q_data() # inflow and outflow data
     
 
-
+    # plot the benchmarking
+    plot_benchmark()
     
     pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
     Pi = 1.44320757e+03
@@ -219,19 +209,6 @@ if __name__ == "__main__":
     plt.show()
 
     # plots the pdf histogram
-    fig = figure()
-    fig.subplots_adjust()
-    ax1 = fig.add_subplot()
-
-    ax1.set_ylabel("Pdf")
-    ax1.set_xlabel("Maximum Temp reached (deg C)")
-
-    for i in range(3):
-        plt.hist(maxTemps[i], density = True, label = names[i])
-        
-    plt.legend(names)
-    plt.title("Max Temp reached")
-    plt.show()
 
     fig, (ax0,ax1,ax2) = plt.subplots(3,sharex=True)
     colours = ["b", "tab:orange", "g"]
@@ -243,8 +220,9 @@ if __name__ == "__main__":
         
     plots = plot0 + plot1 + plot2
     labs = [l.get_label() for l in plots]
-    ax0.legend(names)
-    ax0.legend(plots, labs)
+    ax0.set_title(names[0])
+    ax1.set_title(names[1])
+    ax2.set_title(names[2])
     plt.show()
 
     # Calling convergence analysis function (this function plots the convegence analysis)
