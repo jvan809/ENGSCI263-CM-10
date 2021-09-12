@@ -179,7 +179,7 @@ def solve_and_eval(t0, t, Pi, Ti, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
     return X
 
 
-def uniform_error(pars, init_is_pars=False):
+def uniform_error(pars, init_is_pars=False, title = "Uniform error of model against data"):
     '''
     Plots the uniform error and displays the misfit of the model from the data over time
 
@@ -192,6 +192,8 @@ def uniform_error(pars, init_is_pars=False):
     init_is_pars : boolean
         True indicates that the parameters are in teh form [Pi, aP, bP, P0, Ti, M0, T0, bT], 
         otherwise parameters are assumed to be of the form [aP, bP, P0, M0, T0, bT] and Pi, Ti are assumed to be X0[0,0];X0[1,0]
+    title : string
+        title of plot
     '''
     q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
     
@@ -230,7 +232,7 @@ def uniform_error(pars, init_is_pars=False):
     ax1.set_xlabel("time (days)")
     ax1.set_ylabel("uniform error in pressure")
     ax2.set_ylabel("uniform error in temperature")
-    ax1.set_title("Uniform error in the model over time initial values")
+    ax1.set_title(title)
     ax1.text(150, 0.6, f"Misfit:\n$S = {S:.5}$")
     plt.show()
     

@@ -104,12 +104,11 @@ def fit_model_saleski():
 
 
 
-
-if __name__ == "__main__":
-    p = fit_model_saleski()
+def saleski_model():
+    p = fit_model_saleski() # fit model
     print(p)
 
-    Pi = p[0]
+    Pi = p[0] # rearrange pars
     Ti = p[4]
     p = np.delete(p, [0,4])
     
@@ -118,9 +117,7 @@ if __name__ == "__main__":
     q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
 
    
-    # p= [7.20508397e-05, 3.09508220e-02, 120, 7.08928148e+06, 130, 1.77635973e-2] 
-    # Pi = X0[0,0]
-    # Ti = X0[1,0]
+ 
 
     model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 230, aP, bP, P0, M0, T0, bT)
 
@@ -129,26 +126,36 @@ if __name__ == "__main__":
 
     tt, P, T = ode_solve(model_, tt0[0], tt0[-1]+10, Pi, Ti, p,time_eval = tt0)
 
-    dP = (P - X0[0,:])/(1+X0[0,:])
+    dP = (P - X0[0,:])/(1+X0[0,:]) # uniform error in P and T
     dT = (T - X0[1,:])/(1+X0[1,:])
 
     plt1 = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
     plt2 = ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
-    plt3 = ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
+    plt3 = ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")     # plot data
     plt4 = ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
     plt5 = ax1.vlines(tt0[45],0,2700,"b")
-    plts = plt1 + plt2 + plt3 + plt4 
-    labs = [l.get_label() for l in plts]
-    ax1.legend(plts, labs)
+    pltsi = plt1 + plt2
+    pltsii = plt3 + plt4 
+    labsi = [l.get_label() for l in pltsi]
+    labsii = [l.get_label() for l in pltsii]
+    ax1.legend(pltsi, labsi, bbox_to_anchor=(1,1.15), loc = "upper right")
+    ax2.legend(pltsii, labsi, bbox_to_anchor=(0,1.15), loc = "upper left")
+    ax1.set_title("Saleski Pilot model fitting")
     plt.show()
 
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()   
 
     plt1 = ax1.plot(tt0, dP, "kx", label = "Pressure Data")
-    plt2 = ax2.plot(tt0, dT, "rx", label = "Temperature Data")
-    plt5 = ax1.vlines(tt0[45],0,2700,"b", linestyles="-.")
+    plt2 = ax2.plot(tt0, dT, "rx", label = "Temperature Data")   # plot uniform error in P and T
+    plt5 = ax1.hlines(0,tt0[0],tt0[-1],"tab:grey", linestyles="-.")
+    plt6 = ax1.vlines(tt0[45],-.6,.6,"b")    
     plts = plt1 + plt2
     labs = [l.get_label() for l in plts]
     ax1.legend(plts, labs)
+    ax1.set_title("Uniform Error in the model")
     plt.show()
+
+
+if __name__ == "__main__":
+   saleski_model()

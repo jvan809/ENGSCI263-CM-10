@@ -8,6 +8,7 @@ from data.interpolate_data import *
 from matplotlib.pyplot import *
 from plot_data import *
 from sensitivityAnalysis import *
+from saleski_pilot import *
 
 
 
@@ -19,10 +20,20 @@ if __name__ == "__main__":
     plot_given_TP_data() # temperature and pressure data
     plot_given_q_data() # inflow and outflow data
     
+    # Calling convergence analysis function (this function plots the convegence analysis)
+    sensitivityAnalysis()
 
     # plot the benchmarking
     plot_benchmark()
+
+    # calibrate to the saleski model and check the error
+    saleski_model()
     
+    
+    # optimal set of parameters without varying Pi and Ti
+    p = [1.21156628e-01, 3.06502388e-02, 6.61704220e+02, 5.20398876e+03, 1.44063625e+02, 4.41090440e-02]
+    
+    # with Pi and Ti free
     # parameter values found from calibrate.py - neglected to be ran here due to time to run
     pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
     Pi = 1.44320757e+03
@@ -58,11 +69,8 @@ if __name__ == "__main__":
     plt.title("model fitted against the data")
     plt.show()
 
-    # uniform error without the initial condition as a free parm
-    uniform_error(p)
-    
-    # find the uniform error between the model and the given data
-    uniform_error(pars, init_is_pars=True)
+
+
     
     # constant maximum in/out flow
     stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0)
@@ -83,29 +91,32 @@ if __name__ == "__main__":
     names.append("900 tonnes/day constant")
 
 
-    # misfit of first model
-    fig = figure()
-    fig.subplots_adjust()
-    ax1 = fig.add_subplot()
-    ax2 = ax1.twinx()
+    # # misfit of first model
+    # fig = figure()
+    # fig.subplots_adjust()
+    # ax1 = fig.add_subplot()
+    # ax2 = ax1.twinx()
 
-    ax2.set_ylabel("Temperature (Deg C)")
-    ax1.set_ylabel("Pressure (Pa)")
-    ax1.set_xlabel("Time (Days)")
+    # ax2.set_ylabel("Temperature (Deg C)")
+    # ax1.set_ylabel("Pressure (Pa)")
+    # ax1.set_xlabel("Time (Days)")
 
-    tt, P, T = ode_solve(model_, tt0[0], 400, Pi, Ti, pp, time_eval=tt0)
+    # tt, P, T = ode_solve(model_, tt0[0], 400, Pi, Ti, pp, time_eval=tt0)
 
-    misP = P - X0[0]
-    misT = T - X0[1]
+    # misP = P - X0[0]
+    # misT = T - X0[1]
 
-    plts = ax1.plot(tt0, misP, "kx", label = "Pressure Misfit")
-    plts += ax2.plot(tt0, misT, "rx", label = "Temperature Misfit")
+    # plts = ax1.plot(tt0, misP, "kx", label = "Pressure Misfit")
+    # plts += ax2.plot(tt0, misT, "rx", label = "Temperature Misfit")
    
-    labs = [l.get_label() for l in plts]
-    ax1.legend(plts, labs)
-    plt.title("Misfit of Temp and Pressure, First model")
-    plt.show()
+    # labs = [l.get_label() for l in plts]
+    # ax1.legend(plts, labs)
+    # plt.title("Misfit of Temp and Pressure, First model")
+    # plt.show()
 
+
+    # uniform error without the initial condition as a free parm
+    uniform_error(p, title = "Uniform error of Temp and Pressure, First model")
 
     # plots the 2nd pass model - wrapped up in function to make for less repetition
     def plotBestFit():
@@ -137,28 +148,30 @@ if __name__ == "__main__":
     plt.title("With Initial Value Parameters")
     plt.show()
 
-    # new misfit for 2nd pass
-    fig = figure()
-    fig.subplots_adjust()
-    ax1 = fig.add_subplot()
-    ax2 = ax1.twinx()
+    # # new misfit for 2nd pass
+    # fig = figure()
+    # fig.subplots_adjust()
+    # ax1 = fig.add_subplot()
+    # ax2 = ax1.twinx()
 
-    ax2.set_ylabel("Temperature (Deg C)")
-    ax1.set_ylabel("Pressure (Pa)")
-    ax1.set_xlabel("Time (Days)")
+    # ax2.set_ylabel("Temperature (Deg C)")
+    # ax1.set_ylabel("Pressure (Pa)")
+    # ax1.set_xlabel("Time (Days)")
 
-    misP = P - X0[0]
-    misT = T - X0[1]
+    # misP = P - X0[0]
+    # misT = T - X0[1]
 
-    plts = ax1.plot(tt0, misP, "kx", label = "Pressure Misfit")
-    plts += ax2.plot(tt0, misT, "rx", label = "Temperature Misfit")
+    # plts = ax1.plot(tt0, misP, "kx", label = "Pressure Misfit")
+    # plts += ax2.plot(tt0, misT, "rx", label = "Temperature Misfit")
    
-    labs = [l.get_label() for l in plts]
-    ax1.legend(plts, labs)
-    plt.title("Misfit of Temp and Pressure, with IV params")
-    plt.show()
-
-
+    # labs = [l.get_label() for l in plts]
+    # ax1.legend(plts, labs)
+    # plt.title("Misfit of Temp and Pressure, with IV params")
+    # plt.show()
+    
+    
+    # find the uniform error between the model and the given data
+    uniform_error(pars, init_is_pars=True, title = "Uniform error of Temp and Pressure, with IV params")
 
     # add predictions for scenarios
     def plotPred(P, T, plts, ax2):
@@ -232,10 +245,18 @@ if __name__ == "__main__":
     fig, (ax0,ax1,ax2) = plt.subplots(3,sharex=True)
     colours = ["b", "tab:orange", "g"]
     
-    plot0 = ax0.hist(maxTemps[0], density = True, label = names[0], color = colours[0])[2]
-    plot1 = ax1.hist(maxTemps[1], density = True, label = names[1], color = colours[1])[2]
-    plot2 = ax2.hist(maxTemps[2], density = True, label = names[2], color = colours[2])[2]
+    plot0 = ax0.hist(maxTemps[0], density = True, label = names[0], color = colours[0])
+    plot1 = ax1.hist(maxTemps[1], density = True, label = names[1], color = colours[1])
+    plot2 = ax2.hist(maxTemps[2], density = True, label = names[2], color = colours[2])
 
+    ax0.vlines(np.percentile(maxTemps[0], 5),0,0.5, color = "r", linestyles = "-.")
+    ax0.vlines(np.percentile(maxTemps[0], 95),0,0.5, color = "r", linestyles = "-.")
+    ax1.vlines(np.percentile(maxTemps[1], 5),0,0.5, color = "r", linestyles = "-.")
+    ax1.vlines(np.percentile(maxTemps[1], 95),0,0.5, color = "r", linestyles = "-.")
+    ax2.vlines(np.percentile(maxTemps[2], 5),0,0.5, color = "r", linestyles = "-.")
+    ax2.vlines(np.percentile(maxTemps[2], 95),0,0.5, color = "r", linestyles = "-.")
+
+    
     for i in range(3):
         print(names[i] + " 95% CI maximum temperature: ", round(np.percentile(maxTemps[i], 95), 1))
         
@@ -243,9 +264,9 @@ if __name__ == "__main__":
     ax0.set_title(names[0])
     ax1.set_title(names[1])
     ax2.set_title(names[2])
+    ax2.set_xlabel("max temperature $^\circ$C")
     plt.show()
 
-    # Calling convergence analysis function (this function plots the convegence analysis)
-    sensitivityAnalysis()
+
 
 
