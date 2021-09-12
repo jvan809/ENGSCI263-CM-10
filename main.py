@@ -82,8 +82,12 @@ if __name__ == "__main__":
         tt, P, T = ode_solve(m, tt0[-1], finalTime, Pie, Tie, pp)
         plts += ax2.plot(tt, T, col, label = "Temperature Prediction " + names[i])
 
-
-    #plt.show()
+    plt.legend()
+    plt.xlabel("Time (days)")
+    plt.ylabel("Temperature (celsius)")
+    ax1.set_ylabel("Pressure (kPa)")
+    plt.title("Three temperature scenarios")
+    plt.show()
 
 
 
@@ -118,7 +122,7 @@ if __name__ == "__main__":
     ax1.legend(plts, labs)
 
 
-    plt.show()
+    #plt.show()
 
     # plots the pdf histogram
     fig, ax1 = plt.subplots()
