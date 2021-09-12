@@ -42,6 +42,11 @@ def interp_flow(time, tottime = 150, offset = 0, vols = [1000,1000,0,0], times =
 
 
 if __name__ == "__main__":
+    # unit tests
+    assert const_flow(30) == 1000
+    assert const_flow(90) == 0
+    assert const_flow(90, isProduction=1) == 1000
+    assert const_flow(30, isProduction=1) == 0
 
     assert interp_flow(0) == 1000
     assert interp_flow(60) == 1000

@@ -90,7 +90,8 @@ def normSample(p, Pcov, Tcov, samples):
     # a better but harder to implement and more expensive form would be to use the Ppars to recompute the T everything and then sample from that
     # I don't think the parameters accross domains should affect each other so 
 
-    r = default_rng()
+    # set seed to give same results each time - just make it easy to verify
+    r = default_rng(263)
 
     pP = p[0:3]
     pT = p[3:6]

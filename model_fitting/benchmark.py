@@ -5,7 +5,12 @@ from matplotlib import pyplot as plt
 import scipy as sp
 from scipy.integrate import solve_ivp
 from scipy.optimize.nonlin import nonlin_solve
-from cm_solver_functions import *
+
+# Why is this neccessary?
+if __name__ == "__main__":
+    from cm_solver_functions import *
+else:
+    from model_fitting.cm_solver_functions import *
 
 
 def pressure_analytical(t):
@@ -77,11 +82,12 @@ def plot_benchmark():
     ax1.plot(time, temp, 'kx', label = 'Temperature Numerical Sol')
 
     ax.legend()
-    ax.legend(bbox_to_anchor=(1,1.15), loc = 'upper right', frameon = True)
-    ax1.legend(bbox_to_anchor=(0,1.15), loc = 'upper left', frameon = True)
+    ax.legend(bbox_to_anchor=(0.92,1.15), loc = 'upper center', frameon = True)
+    ax1.legend(bbox_to_anchor=(0.07,1.15), loc = 'upper center', frameon = True)
     ax.set_xlabel("time")
     ax.set_ylabel("Pressure")
     ax1.set_ylabel("Temperature")
+    ax.set_title("Benchmarking")
     plt.show()
 
 
