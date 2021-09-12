@@ -31,4 +31,5 @@ def sensitivityAnalysis():
     plt.scatter(steps, finalPressureResults)
     plt.ylabel("Final value")
     plt.xlabel("Step size")
+    plt.title("Final value of solution vs step size")
     plt.show()

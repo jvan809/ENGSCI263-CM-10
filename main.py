@@ -1,3 +1,4 @@
+from sensitivityAnalysis import sensitivityAnalysis
 from prediction.uncertanity import *
 from calibrate import *
 from prediction.cycle import *
@@ -20,6 +21,10 @@ from matplotlib.pyplot import *
 
 
 if __name__ == "__main__":
+
+
+    sensitivityAnalysis()
+
     pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
     Pi = 1.44320757e+03
     Ti = 1.92550478e+02
@@ -36,13 +41,13 @@ if __name__ == "__main__":
 
 
     # constant maximum in/out flow
-    stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0) # 2450000
+    stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0)
     out1 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
     models = [lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm1, out1, 260, aP, bP, P0, M0, T0, bT)]
     names = ["1000 tonnes / day constant"]
 
     # less conservative linear model
-    stm2 = lambda t: interp_flow(t, 150, vols = [1000,800,0,0], times = [0,60,60.1,150], offset=endTime) # first cycle * 1000/460 approx - 2500000,2100000
+    stm2 = lambda t: interp_flow(t, 150, vols = [1000,850,0,0], times = [0,60,60.1,150], offset=endTime) # first cycle * 1000/460 
     out2 = lambda t: interp_flow(t, 150, vols = [0,0,250,200], times = [0,60,60.1,150], offset=endTime) # guess
     models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm2, out2, 260, aP, bP, P0, M0, T0, bT) )
     names.append("Extension of pilot injection")
@@ -53,33 +58,131 @@ if __name__ == "__main__":
     models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm4, out4, 260, aP, bP, P0, M0, T0, bT) )
     names.append("900 tonnes/day constant")
 
-    fig, ax1 = plt.subplots()
+    fig = figure()
+    fig.subplots_adjust()
+    ax1 = fig.add_subplot()
     ax2 = ax1.twinx()
 
-    tt, P, T = ode_solve(model_, tt0[0], tt0[-1], Pi, Ti, pp)
+    ax2.set_ylabel("Temperature (Deg C)")
+    ax1.set_ylabel("Pressure (Pa)")
+    ax1.set_xlabel("Time (Days)")
 
-    # interpolation
+    # with initial values based on data
+    tt, P, T = ode_solve(model_, tt0[0], tt0[-1], X0[0][0], X0[1][0], pp, tt0)
+
     plts = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
     plts += ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
-    plts += ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
-    plts += ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
+    plts += ax1.plot(tt0, P, "k", label = "Pressure Numerical Sol")    
+    plts += ax2.plot(tt0, T, "r", label = "Temperature Numerical Sol")
 
-    # predictions start from where interpolation left off
-    Pie = P[-1]
-    Tie = T[-1]
+    labs = [l.get_label() for l in plts]
+    ax1.legend(plts, labs)
+    plt.title("First Fit")
+    plt.show()
 
+    fig = figure()
+    fig.subplots_adjust()
+    ax1 = fig.add_subplot()
+    ax2 = ax1.twinx()
+
+    ax2.set_ylabel("Temperature (Deg C)")
+    ax1.set_ylabel("Pressure (Pa)")
+    ax1.set_xlabel("Time (Days)")
+
+    misP = P - X0[0]
+    misT = T - X0[1]
+
+    plts = ax1.plot(tt0, misP, "kx", label = "Pressure Misfit")
+    plts += ax2.plot(tt0, misT, "rx", label = "Temperature Misfit")
+   
+    labs = [l.get_label() for l in plts]
+    ax1.legend(plts, labs)
+    plt.title("Misfit of Temp and Pressure, First model")
+    plt.show()
+
+
+ 
+    def plotBestFit():
+        fig = figure()
+        fig.subplots_adjust()
+        ax1 = fig.add_subplot()
+        ax2 = ax1.twinx()
+
+        ax2.set_ylabel("Temperature (Deg C)")
+        ax1.set_ylabel("Pressure (Pa)")
+        ax1.set_xlabel("Time (Days)")
+
+        # initial values based on params
+        tt, P, T = ode_solve(model_, tt0[0], tt0[-1], Pi, Ti, pp, tt0)
+
+        # interpolation
+        plts = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
+        plts += ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
+        plts += ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
+        plts += ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
+
+        
+        return P, T, plts, ax2
+
+
+    P, T, plts, ax2 =  plotBestFit()
+    labs = [l.get_label() for l in plts]
+    ax2.legend(plts, labs)
+    plt.title("With Initial Value Parameters")
+    plt.show()
+
+    fig = figure()
+    fig.subplots_adjust()
+    ax1 = fig.add_subplot()
+    ax2 = ax1.twinx()
+
+    ax2.set_ylabel("Temperature (Deg C)")
+    ax1.set_ylabel("Pressure (Pa)")
+    ax1.set_xlabel("Time (Days)")
+
+    misP = P - X0[0]
+    misT = T - X0[1]
+
+    plts = ax1.plot(tt0, misP, "kx", label = "Pressure Misfit")
+    plts += ax2.plot(tt0, misT, "rx", label = "Temperature Misfit")
+   
+    labs = [l.get_label() for l in plts]
+    ax1.legend(plts, labs)
+    plt.title("Misfit of Temp and Pressure, with IV params")
+    plt.show()
+
+
+
+
+    def plotPred(P, T, plts, ax2):
+        # predictions start from where interpolation left off
+        Pie = P[-1]
+        Tie = T[-1]
+
+        # predictions to plot
+        for i in range(3):
+            m = models[i]
+            col = ['c','g','y'][i]
+            tt, P, T = ode_solve(m, tt0[-1], finalTime, Pie, Tie, pp)
+            plts += ax2.plot(tt, T, col, label = "Temperature Prediction " + names[i])
+
+
+    
     finalTime = 650
-    # predictions to plot
-    for i in range(3):
-        m = models[i]
-        col = ['c','g','y'][i]
-        tt, P, T = ode_solve(m, tt0[-1], finalTime, Pie, Tie, pp)
-        plts += ax2.plot(tt, T, col, label = "Temperature Prediction " + names[i])
 
+    P, T, plts, ax2 =plotBestFit()
+    plotPred(P, T, plts, ax2)
+    plt.title("Prediction")
+    labs = [l.get_label() for l in plts]
+    ax2.legend(plts, labs)
+    plt.show()
 
-    #plt.show()
+    P, T, plts, ax2 =plotBestFit()
+    plotPred(P, T, plts, ax2)
 
-
+    labs = [l.get_label() for l in plts]
+    ax2.legend(plts, labs)
+    plt.title("Prediction with Ensemble of Models")
 
 
     pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
@@ -107,15 +210,16 @@ if __name__ == "__main__":
             ax2.plot(tt,t,col, lw=0.25,alpha=0.2)
             maxTemps[i].append(max(t))
 
-
-    labs = [l.get_label() for l in plts]
-    ax1.legend(plts, labs)
-
-
     plt.show()
 
     # plots the pdf histogram
-    fig, ax1 = plt.subplots()
+    fig = figure()
+    fig.subplots_adjust()
+    ax1 = fig.add_subplot()
+
+    ax1.set_ylabel("Pdf")
+    ax1.set_xlabel("Maximum Temp reached (deg C)")
+
     for i in range(3):
         plt.hist(maxTemps[i], density = True, label = names[i])
         
