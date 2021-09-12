@@ -88,7 +88,7 @@ def gridSample(p, pMaxDelta, steps, isInitPars, Tstm, numSamples):
 def normSample(p, Pcov, Tcov, samples):
     # assumes that pressure and temp parameters are unrelated
     # a better but harder to implement and more expensive form would be to use the Ppars to recompute the T everything and then sample from that
-    # I don't think the parameters accross domains should affect each other so eh
+    # I don't think the parameters accross domains should affect each other so 
 
     r = default_rng()
 

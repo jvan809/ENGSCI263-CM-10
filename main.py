@@ -6,8 +6,14 @@ from data.interpolate_data import *
 from matplotlib.pyplot import *
 
 # this file should be able to produce all figures included in reports **without modification**
-# TODO: add plot_data plots
-
+# Graphs Used in template report:
+#   production & pressure - could be production / injection + temp?
+#   best fit of first version of model + misfit over time
+#   as before with improved model (+ inital allowed to vary)
+#   prediction with varied scenarios (unchanged, constant max, similar to before scaled up??)
+#   as before with ensemble modelling
+#   posterior dist of one parameter (possibly not needed for this application)
+#   - I'd like to add dist of max temp for max all the time scenario
 
 
 
@@ -19,27 +25,66 @@ if __name__ == "__main__":
     Ti = 1.92550478e+02
     pars = [1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
     
-    q_oil, q_stmo, q_water, tt0, X0 = interpolate_data() # get the interpolated data
+    q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
 
-    q_outo = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
-    q_stm = lambda t: q_stmo(t) if (t < tt0[-1]) else const_flow(t, offset = tt0[-1])
-    q_out = lambda t: q_outo(t) if (t < tt0[-1]) else const_flow(t,vol = 250 ,isProduction = 1, offset = tt0[-1]) # note: total guess
+    endTime = tt0[-1]
 
+    q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
+
+    # interpolated model
     model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 260, aP, bP, P0, M0, T0, bT)
+
+
+    # constant maximum in/out flow
+    stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0) # 2450000
+    out1 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
+    models = [lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm1, out1, 260, aP, bP, P0, M0, T0, bT)]
+
+
+    # less conservative linear model
+    stm2 = lambda t: interp_flow(t, 150, vols = [1000,800,0,0], times = [0,60,60.1,150], offset=endTime) # first cycle * 1000/460 approx - 2500000,2100000
+    out2 = lambda t: interp_flow(t, 150, vols = [0,0,250,200], times = [0,60,60.1,150], offset=endTime) # guess
+    models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm2, out2, 260, aP, bP, P0, M0, T0, bT) )
+
+    # constant 460 tonnes / day
+    stm3 = lambda t: const_flow(t, 60, 150, endTime, 460, 0) # 1100000
+    out3 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
+    models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm3, out3, 260, aP, bP, P0, M0, T0, bT) )
+
+
+    # constant 900 tonnes / day
+    stm4 = lambda t: const_flow(t, 60, 150, endTime, 900, 0) # 2200000
+    out4 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
+    models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm4, out4, 260, aP, bP, P0, M0, T0, bT) )
+
 
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
 
-    tt, P, T = ode_solve(model_, tt0[0], 400, Pi, Ti, pp)
+    tt, P, T = ode_solve(model_, tt0[0], tt0[-1], Pi, Ti, pp)
+
+    # interpolation
+    plts = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
+    plts += ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
+    plts += ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
+    plts += ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
+
+    # predictions start from where interpolation left off
+    Pi = P[-1]
+    Ti = T[-1]
+
+    finalTime = 650
+    # predictions to plot
+    for i in range(4):
+        m = models[i]
+        col = ['c','m','y','g'][i]
+        tt, P, T = ode_solve(m, tt0[-1], finalTime, Pi, Ti, pp)
+        #plts += ax1.plot(tt, P, "g", label = "Pressure Prediction " + str(i) )
+        plts += ax2.plot(tt, T, col, label = "Temperature Prediction " + str(i))
 
 
-    plt1 = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
-    plt2 = ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
-    plt3 = ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
-    plt4 = ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
-    plts = plt1 + plt2 + plt3 + plt4 
-    labs = [l.get_label() for l in plts]
-    ax1.legend(plts, labs)
+
+
 
 
     pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
@@ -56,13 +101,16 @@ if __name__ == "__main__":
     maxTemps = []
 
     for params in normModels:
-        _, p, t = ode_solve(model_, tt0[0], 400, Pi, Ti, params, tt)
-        ax1.plot(tt,p,'k-', lw=0.25,alpha=0.2)
-        ax2.plot(tt,t,'r-', lw=0.25,alpha=0.2)
+        _, p, t = ode_solve(model_, tt0[0], tt0[-1], Pi, Ti, params, tt0)
+        ax1.plot(tt0,p,'k-', lw=0.25,alpha=0.2)
+        ax2.plot(tt0,t,'r-', lw=0.25,alpha=0.2)
         maxTemps.append(max(t))
     
-    ax1.plot([],[],'k-', lw=0.5,alpha=0.4, label='model ensemble (P)')
-    ax2.plot([],[],'r-', lw=0.5,alpha=0.4, label='model ensemble (T)')
+    plts += ax1.plot([],[],'k-', lw=0.5,alpha=0.4, label='model ensemble (P)')
+    plts += ax2.plot([],[],'r-', lw=0.5,alpha=0.4, label='model ensemble (T)')
+
+    labs = [l.get_label() for l in plts]
+    ax1.legend(plts, labs)
 
 
     plt.show()

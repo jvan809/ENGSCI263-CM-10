@@ -23,7 +23,7 @@ def const_flow(time, injtime = 60, tottime = 150, offset = 0, vol = 1000, isProd
 
     return flow
 
-def interp_flow(time, tottime = 150, vols = [1000,1000,0,0], times = [0,60,60.1,150]):
+def interp_flow(time, tottime = 150, offset = 0, vols = [1000,1000,0,0], times = [0,60,60.1,150]):
     # 
     # Inputs:
     #   time: time to evaluate injection volume
@@ -34,7 +34,7 @@ def interp_flow(time, tottime = 150, vols = [1000,1000,0,0], times = [0,60,60.1,
     # Outputs:
     #   flow - amount of flow at the given time 
     
-    x = time % tottime
+    x = (time - offset) % tottime
 
     f = interp1d(times, vols, kind = 'linear')
 
@@ -42,4 +42,7 @@ def interp_flow(time, tottime = 150, vols = [1000,1000,0,0], times = [0,60,60.1,
 
 
 if __name__ == "__main__":
-    pass
+
+    assert interp_flow(0) == 1000
+    assert interp_flow(60) == 1000
+    assert interp_flow(90) == 0
