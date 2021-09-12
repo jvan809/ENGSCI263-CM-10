@@ -190,6 +190,7 @@ if __name__ == "__main__":
              [-1.75419958e+01,  5.30715709e+00,  1.05492717e-03],
              [ 1.08953251e-01,  1.05492717e-03 , 3.40814200e-06]]
 
+    # note: fixed seed in uncertanity.py
     normModels = normSample(pp, pcov, tcov, 100)
 
     maxTemps = [[],[],[]]
