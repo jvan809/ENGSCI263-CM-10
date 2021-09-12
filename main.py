@@ -39,24 +39,19 @@ if __name__ == "__main__":
     stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0) # 2450000
     out1 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
     models = [lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm1, out1, 260, aP, bP, P0, M0, T0, bT)]
-
+    names = ["1000 tonnes / day constant"]
 
     # less conservative linear model
     stm2 = lambda t: interp_flow(t, 150, vols = [1000,800,0,0], times = [0,60,60.1,150], offset=endTime) # first cycle * 1000/460 approx - 2500000,2100000
     out2 = lambda t: interp_flow(t, 150, vols = [0,0,250,200], times = [0,60,60.1,150], offset=endTime) # guess
     models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm2, out2, 260, aP, bP, P0, M0, T0, bT) )
-
-    # constant 460 tonnes / day
-    stm3 = lambda t: const_flow(t, 60, 150, endTime, 460, 0) # 1100000
-    out3 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
-    models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm3, out3, 260, aP, bP, P0, M0, T0, bT) )
-
+    names.append("Extension of pilot injection")
 
     # constant 900 tonnes / day
     stm4 = lambda t: const_flow(t, 60, 150, endTime, 900, 0) # 2200000
-    out4 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
+    out4 = lambda t: const_flow(t, 60, 150, endTime, 225, 1)
     models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm4, out4, 260, aP, bP, P0, M0, T0, bT) )
-
+    names.append("900 tonnes/day constant")
 
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
@@ -70,19 +65,19 @@ if __name__ == "__main__":
     plts += ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
 
     # predictions start from where interpolation left off
-    Pi = P[-1]
-    Ti = T[-1]
+    Pie = P[-1]
+    Tie = T[-1]
 
     finalTime = 650
     # predictions to plot
-    for i in range(4):
+    for i in range(3):
         m = models[i]
-        col = ['c','m','y','g'][i]
-        tt, P, T = ode_solve(m, tt0[-1], finalTime, Pi, Ti, pp)
-        #plts += ax1.plot(tt, P, "g", label = "Pressure Prediction " + str(i) )
-        plts += ax2.plot(tt, T, col, label = "Temperature Prediction " + str(i))
+        col = ['c','g','y'][i]
+        tt, P, T = ode_solve(m, tt0[-1], finalTime, Pie, Tie, pp)
+        plts += ax2.plot(tt, T, col, label = "Temperature Prediction " + names[i])
 
 
+    #plt.show()
 
 
 
@@ -98,16 +93,20 @@ if __name__ == "__main__":
 
     normModels = normSample(pp, pcov, tcov, 100)
 
-    maxTemps = []
+    maxTemps = [[],[],[]]
 
     for params in normModels:
         _, p, t = ode_solve(model_, tt0[0], tt0[-1], Pi, Ti, params, tt0)
         ax1.plot(tt0,p,'k-', lw=0.25,alpha=0.2)
         ax2.plot(tt0,t,'r-', lw=0.25,alpha=0.2)
-        maxTemps.append(max(t))
-    
-    plts += ax1.plot([],[],'k-', lw=0.5,alpha=0.4, label='model ensemble (P)')
-    plts += ax2.plot([],[],'r-', lw=0.5,alpha=0.4, label='model ensemble (T)')
+        Pie = p[-1]
+        Tie = t[-1]
+        for i in range(3):
+            col = ['c','g','y'][i]
+            tt, p, t = ode_solve(models[i], tt0[-1], finalTime, Pie, Tie, params)
+            ax2.plot(tt,t,col, lw=0.25,alpha=0.2)
+            maxTemps[i].append(max(t))
+
 
     labs = [l.get_label() for l in plts]
     ax1.legend(plts, labs)
@@ -116,8 +115,11 @@ if __name__ == "__main__":
     plt.show()
 
     # plots the pdf histogram
-    plt.hist(maxTemps, density = True)
-
+    fig, ax1 = plt.subplots()
+    for i in range(3):
+        plt.hist(maxTemps[i], density = True, label = names[i])
+        
+    plt.legend(names)
+    plt.title("Max Temp reached")
     plt.show()
-
 
