@@ -147,4 +147,8 @@ if __name__ == "__main__":
 
     plt1 = ax1.plot(tt0, dP, "kx", label = "Pressure Data")
     plt2 = ax2.plot(tt0, dT, "rx", label = "Temperature Data")
+    plt5 = ax1.vlines(tt0[45],0,2700,"b", linestyles="-.")
+    plts = plt1 + plt2
+    labs = [l.get_label() for l in plts]
+    ax1.legend(plts, labs)
     plt.show()

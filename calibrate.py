@@ -181,7 +181,7 @@ def solve_and_eval(t0, t, Pi, Ti, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
 
 def uniform_error(pars, init_is_pars=False):
     '''
-    Plots the uniform error of the model from the data over time
+    Plots the uniform error and displays the misfit of the model from the data over time
 
     inputs:
     -------
@@ -198,6 +198,7 @@ def uniform_error(pars, init_is_pars=False):
     q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
     
     Tstm = 260
+    S = misfit(Tstm, pars, init_is_pars)
 
     num_pars = np.array(pars)
     if init_is_pars:
@@ -213,7 +214,6 @@ def uniform_error(pars, init_is_pars=False):
     
     tt, P, T = ode_solve(model, tt0[0], tt0[-1], Pi, Ti, pars, time_eval=tt0)
     
-    
 
     dP = (P-X0[0,:])/(1+X0[0,:])
     dT = (T-X0[1,:])/(1+X0[1,:])
@@ -227,7 +227,11 @@ def uniform_error(pars, init_is_pars=False):
     plts = plt1 + plt2
     labs = [l.get_label() for l in plts]
     ax1.legend(handles = plts, labels = labs,bbox_to_anchor=(1,1.15), loc="upper right")
-
+    ax1.set_xlabel("time (days)")
+    ax1.set_ylabel("uniform error in pressure")
+    ax2.set_ylabel("uniform error in temperature")
+    ax1.set_title("Uniform error in the model over time initial values")
+    ax1.text(150, 0.6, f"Misfit:\n$S = {S:.5}$")
     plt.show()
     
 
@@ -244,7 +248,7 @@ if __name__ == "__main__":
 #     # p = np.delete(p, [0,4])
 
 
-#     # p = [1.21156628e-01, 3.06502388e-02, 6.61704220e+02, 5.20398876e+03, 1.44063625e+02, 4.41090440e-02] # OPTIMAL SET OF PARAMETERS
+    p = [1.21156628e-01, 3.06502388e-02, 6.61704220e+02, 5.20398876e+03, 1.44063625e+02, 4.41090440e-02] # OPTIMAL SET OF PARAMETERS
    
 #     # # pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
 #     # #         [-1.08497587e-08,  1.19555937e-09, -5.37910126e-04],
@@ -286,4 +290,5 @@ if __name__ == "__main__":
 #     labs = [l.get_label() for l in plts]
 #     ax1.legend(plts, labs)
 #     plt.show()
+    uniform_error(p)
     uniform_error(pars, init_is_pars=True)

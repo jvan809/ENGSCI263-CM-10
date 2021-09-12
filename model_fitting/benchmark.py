@@ -69,15 +69,19 @@ def plot_benchmark():
     f, ax = plt.subplots(1,1)
     ax1 = ax.twinx()
     # pressure
-    ax.plot(t_analytical, pre_analytical , 'r-', label='Analytical')
-    ax.plot(time, pressure, 'bx', label = 'Numerical')
+    ax.plot(t_analytical, pre_analytical , 'r-', label='Pressure Analytical sol')
+    ax.plot(time, pressure, 'bx', label = 'Pressure Numerical sol')
 
     # temp
-    ax1.plot(t_analytical, tmp_analytical , 'r-', label='Analytical')
-    ax1.plot(time, temp, 'bx', label = 'Numerical')
+    ax1.plot(t_analytical, tmp_analytical , 'g-', label='Temperature Analytical Sol')
+    ax1.plot(time, temp, 'kx', label = 'Temperature Numerical Sol')
 
     ax.legend()
-    ax.legend(loc = 'upper right', frameon = True)
+    ax.legend(bbox_to_anchor=(1,1.15), loc = 'upper right', frameon = True)
+    ax1.legend(bbox_to_anchor=(0,1.15), loc = 'upper left', frameon = True)
+    ax.set_xlabel("time")
+    ax.set_ylabel("Pressure")
+    ax1.set_ylabel("Temperature")
     plt.show()
 
 
