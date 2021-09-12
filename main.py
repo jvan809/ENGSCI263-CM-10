@@ -5,6 +5,7 @@ from model_fitting.cm_solver_functions import *
 from data.interpolate_data import *
 from matplotlib.pyplot import *
 from plot_data import *
+from sensitivityAnalysis import *
 # this file should be able to produce all figures included in reports **without modification**
 # Graphs Used in template report:
 #   production & pressure - could be production / injection + temp?
@@ -143,4 +144,8 @@ if __name__ == "__main__":
     ax0.legend(names)
     ax0.legend(plots, labs)
     plt.show()
+
+    # Calling convergence analysis function (this function plots the convegence analysis)
+    sensitivityAnalysis()
+
 
