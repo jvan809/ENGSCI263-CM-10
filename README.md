@@ -1,5 +1,8 @@
 # ENGSCI263-CM-10
 
+To generate all the plots open main.py, then run it.
+This github repository contains the files necessary to replicate results of the Thermal Recovery of Bitumen on the West Coast modelling study.
+
 #calibrate.py
 
   Countains the functions:

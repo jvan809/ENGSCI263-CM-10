@@ -103,6 +103,8 @@ def fit_model_saleski():
     return p
 
 
+
+
 if __name__ == "__main__":
     p = fit_model_saleski()
     print(p)
@@ -127,8 +129,8 @@ if __name__ == "__main__":
 
     tt, P, T = ode_solve(model_, tt0[0], tt0[-1]+10, Pi, Ti, p,time_eval = tt0)
 
-    dP = P - X0[0,:]
-    dT = T - X0[1,:]
+    dP = (P - X0[0,:])/(1+X0[0,:])
+    dT = (T - X0[1,:])/(1+X0[1,:])
 
     plt1 = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
     plt2 = ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
@@ -138,4 +140,11 @@ if __name__ == "__main__":
     plts = plt1 + plt2 + plt3 + plt4 
     labs = [l.get_label() for l in plts]
     ax1.legend(plts, labs)
+    plt.show()
+
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twinx()   
+
+    plt1 = ax1.plot(tt0, dP, "kx", label = "Pressure Data")
+    plt2 = ax2.plot(tt0, dT, "rx", label = "Temperature Data")
     plt.show()

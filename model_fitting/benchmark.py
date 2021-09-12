@@ -67,20 +67,21 @@ def plot_benchmark():
     time, pressure, temp = ode_solve(model, 0, 10 ,0.1 ,0.9 ,[-1,0,1,1,1,1,1,1,1])
 
     f, ax = plt.subplots(1,1)
+    ax1 = ax.twinx()
     # pressure
     ax.plot(t_analytical, pre_analytical , 'r-', label='Analytical')
     ax.plot(time, pressure, 'bx', label = 'Numerical')
 
     # temp
-    ax.plot(t_analytical, tmp_analytical , 'r-', label='Analytical')
-    ax.plot(time, temp, 'bx', label = 'Numerical')
+    ax1.plot(t_analytical, tmp_analytical , 'r-', label='Analytical')
+    ax1.plot(time, temp, 'bx', label = 'Numerical')
 
-    leg = ax.legend()
+    ax.legend()
     ax.legend(loc = 'upper right', frameon = True)
     plt.show()
 
-    return None
+
 
 if __name__ == "__main__":
-    # plot_kettle_model()
+    
     plot_benchmark()

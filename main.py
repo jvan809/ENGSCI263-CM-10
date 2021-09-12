@@ -5,7 +5,8 @@ from prediction.cycle import *
 from model_fitting.cm_solver_functions import *
 from data.interpolate_data import *
 from matplotlib.pyplot import *
-
+from plot_data import *
+from sensitivityAnalysis import *
 # this file should be able to produce all figures included in reports **without modification**
 # Graphs Used in template report:
 #   production & pressure - could be production / injection + temp?
@@ -25,6 +26,13 @@ if __name__ == "__main__":
 
     sensitivityAnalysis()
 
+    # plot the pilot data given to us
+    plot_given_TP_data() # temperature and pressure data
+    plot_given_q_data() # inflow and outflow data
+    
+
+
+    
     pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
     Pi = 1.44320757e+03
     Ti = 1.92550478e+02
@@ -39,6 +47,22 @@ if __name__ == "__main__":
     # interpolated model
     model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 260, aP, bP, P0, M0, T0, bT)
 
+    fig, ax1 = plt.subplots() # create subplots
+    #fig, (ax1,ax1_) = plt.subplots(2) # create subplots
+    ax2 = ax1.twinx()
+
+    plt1 = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data") # pressure data
+    plt2 = ax2.plot(tt0, X0[1], "r.", label = "Temperature Data") # temperature data
+    tt, P, T = ode_solve(model_, tt0[0], 400, Pi, Ti, pp, time_eval=np.linspace(tt0[0],400, 1000))
+    plt3 = ax1.plot(tt, P, "k", label = "Pressure Numerical Sol") # 
+    plt4 = ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
+    plts = plt1 + plt2 + plt3 + plt4 
+    ax1.set_xlabel("time (days)")
+    ax1.set_ylabel("Pressure (kPa)")
+    ax2.set_ylabel("Temperature ($^\circ$C)")
+    labs = [l.get_label() for l in plts]
+    ax1.legend(plts, labs)
+    plt.show()
 
     # constant maximum in/out flow
     stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0)
@@ -58,27 +82,7 @@ if __name__ == "__main__":
     models.append( lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, stm4, out4, 260, aP, bP, P0, M0, T0, bT) )
     names.append("900 tonnes/day constant")
 
-    fig = figure()
-    fig.subplots_adjust()
-    ax1 = fig.add_subplot()
-    ax2 = ax1.twinx()
 
-    ax2.set_ylabel("Temperature (Deg C)")
-    ax1.set_ylabel("Pressure (Pa)")
-    ax1.set_xlabel("Time (Days)")
-
-    # with initial values based on data
-    tt, P, T = ode_solve(model_, tt0[0], tt0[-1], X0[0][0], X0[1][0], pp, tt0)
-
-    plts = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
-    plts += ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
-    plts += ax1.plot(tt0, P, "k", label = "Pressure Numerical Sol")    
-    plts += ax2.plot(tt0, T, "r", label = "Temperature Numerical Sol")
-
-    labs = [l.get_label() for l in plts]
-    ax1.legend(plts, labs)
-    plt.title("First Fit")
-    plt.show()
 
     fig = figure()
     fig.subplots_adjust()
@@ -88,6 +92,8 @@ if __name__ == "__main__":
     ax2.set_ylabel("Temperature (Deg C)")
     ax1.set_ylabel("Pressure (Pa)")
     ax1.set_xlabel("Time (Days)")
+
+    tt, P, T = ode_solve(model_, tt0[0], 400, Pi, Ti, pp, time_eval=tt0)
 
     misP = P - X0[0]
     misT = T - X0[1]
@@ -226,4 +232,22 @@ if __name__ == "__main__":
     plt.legend(names)
     plt.title("Max Temp reached")
     plt.show()
+
+    fig, (ax0,ax1,ax2) = plt.subplots(3,sharex=True)
+    colours = ["b", "tab:orange", "g"]
+    
+    plot0 = ax0.hist(maxTemps[0], density = True, label = names[0], color = colours[0])[2]
+    plot1 = ax1.hist(maxTemps[1], density = True, label = names[1], color = colours[1])[2]
+    plot2 = ax2.hist(maxTemps[2], density = True, label = names[2], color = colours[2])[2]
+
+        
+    plots = plot0 + plot1 + plot2
+    labs = [l.get_label() for l in plots]
+    ax0.legend(names)
+    ax0.legend(plots, labs)
+    plt.show()
+
+    # Calling convergence analysis function (this function plots the convegence analysis)
+    sensitivityAnalysis()
+
 

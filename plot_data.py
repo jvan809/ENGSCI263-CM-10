@@ -32,7 +32,7 @@ def plot_given_TP_data():
     ax1.set_ylabel("Pressure (kPa)")
     ax2.set_ylabel("Temperature ($^\circ$C)")
     ax1.set_xlabel("time (days)")
-
+    plt.title("Plots of the temperature and pressure in the system over time")
     plt.show()
 
 
@@ -56,8 +56,6 @@ def plot_given_q_data():
     # create structure of plots
     fig, ax1 = plt.subplots(3)
 
-    qs = qs*2.4527886845*1000 # from steam calculator for specific volume - tonnes * 2.45 m^3/kg * 1000 kg / tonne
-    # assumes constant input pressure (Should this be the same as system pressure??)
 
     # add data
     plt1 = ax1[0].plot(to, qo, "go", label = "Oil Outflow rate")
@@ -71,7 +69,7 @@ def plot_given_q_data():
     [ax1[i].set_ylabel("Flow rate ($m^3$/day)") for i in range(3)]
     [ax1[i].set_xlabel("time (days)") for i in range(3)]
     [ax1[i].set_xlim([0,225]) for i in range(3)] # set x range to be the same for all 3 plots so that they line up
-
+    ax1[0].set_title("Plots of the oil, water and steam flow rates out and into the system over time")
     plt.show()
 
 if __name__ == "__main__":
