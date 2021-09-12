@@ -19,19 +19,12 @@ if __name__ == "__main__":
     plot_given_TP_data() # temperature and pressure data
     plot_given_q_data() # inflow and outflow data
     
-<<<<<<< HEAD
-    p = [1.21156628e-01, 3.06502388e-02, 6.61704220e+02, 5.20398876e+03, 1.44063625e+02, 4.41090440e-02] #optimal paramters without initial temperature and pressure as free pars
-    
-    
-    pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] # optimal paramters with initial temperature and pressure as free pars
-=======
 
     # plot the benchmarking
     plot_benchmark()
     
     # parameter values found from calibrate.py - neglected to be ran here due to time to run
     pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
->>>>>>> 2af6ec1a7d0de2814720b0b65a4c5dfb9f566397
     Pi = 1.44320757e+03
     Ti = 1.92550478e+02
     pars = [1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
@@ -65,16 +58,12 @@ if __name__ == "__main__":
     plt.title("model fitted against the data")
     plt.show()
 
-<<<<<<< HEAD
     # uniform error without the initial condition as a free parm
     uniform_error(p)
     
     # find the uniform error between the model and the given data
     uniform_error(pars, init_is_pars=True)
     
-=======
-        # these are the scenarios modelled
->>>>>>> 2af6ec1a7d0de2814720b0b65a4c5dfb9f566397
     # constant maximum in/out flow
     stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0)
     out1 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
@@ -230,15 +219,12 @@ if __name__ == "__main__":
             ax2.plot(tt,t,col, lw=0.25,alpha=0.2)
             maxTemps[i].append(max(t))
 
-<<<<<<< HEAD
 
 
     labs = [l.get_label() for l in plts]
     ax1.legend(plts, labs)
 
 
-=======
->>>>>>> 2af6ec1a7d0de2814720b0b65a4c5dfb9f566397
     plt.show()
 
     # plots the pdf histogram
