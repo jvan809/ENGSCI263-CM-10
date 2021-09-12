@@ -62,7 +62,7 @@ def interpolate_data():
     tw, qw = get_data(filenames[4])
 
 
-    # interpolate all the data
+    # interpolate all the data - note this is linear
     q_oil = interp1d(to, qo, fill_value = 0, bounds_error=False)
     Pr = interp1d(tP, P_data)
     q_stm = interp1d(ts, qs, fill_value = 0, bounds_error=False)
