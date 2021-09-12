@@ -16,6 +16,11 @@ def misfit(Tstm, num_pars, init_is_pars=False):
     init_is_pars : boolean
         True indicates that the parameters are in teh form [Pi, aP, bP, P0, Ti, M0, T0, bT], 
         otherwise parameters are assumed to be of the form [aP, bP, P0, M0, T0, bT] and Pi, Ti are assumed to be X0[0,0];X0[1,0]
+
+    outputs:
+    --------
+    S : float
+        Misfit of the model
     '''
     q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
     
@@ -174,6 +179,59 @@ def solve_and_eval(t0, t, Pi, Ti, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
     return X
 
 
+def uniform_error(pars, init_is_pars=False):
+    '''
+    Plots the uniform error of the model from the data over time
+
+    inputs:
+    -------
+    Tstm : float
+        Temperature of injected steam
+    num_pars : numpy array
+        Array of parameters for the numerical model
+    init_is_pars : boolean
+        True indicates that the parameters are in teh form [Pi, aP, bP, P0, Ti, M0, T0, bT], 
+        otherwise parameters are assumed to be of the form [aP, bP, P0, M0, T0, bT] and Pi, Ti are assumed to be X0[0,0];X0[1,0]
+    '''
+    q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
+    
+    q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
+    
+    Tstm = 260
+
+    num_pars = np.array(pars)
+    if init_is_pars:
+        Pi = num_pars[0]
+        Ti = num_pars[4]
+        num_pars = np.delete(num_pars, [0,4])
+        pars = np.append(np.array([q_stm, q_out, Tstm]),num_pars)
+    else:
+        Pi = X0[0,0]
+        Ti = X0[1,0]
+        pars = np.append([q_stm, q_out, Tstm],num_pars)
+    
+    
+    tt, P, T = ode_solve(model, tt0[0], tt0[-1], Pi, Ti, pars, time_eval=tt0)
+    
+    
+
+    dP = (P-X0[0,:])/(1+X0[0,:])
+    dT = (T-X0[1,:])/(1+X0[1,:])
+
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twinx()   
+
+    plt1 = ax1.plot(tt0, dP, "kx", label = "Pressure uniform error")
+    plt2 = ax2.plot(tt0, dT, "rx", label = "Temperature uniform error")
+    ax1.hlines(0,tt0[0], tt0[-1], linestyles="-.")
+    plts = plt1 + plt2
+    labs = [l.get_label() for l in plts]
+    ax1.legend(handles = plts, labels = labs,bbox_to_anchor=(1,1.15), loc="upper right")
+
+    plt.show()
+    
+
+
 
 if __name__ == "__main__":
 #     # p, pcov, tcov  = fit_model_initialcondit_as_pars(260)
@@ -197,12 +255,12 @@ if __name__ == "__main__":
 #     # #         [-1.75419958e+01,  5.30715709e+00,  1.05492717e-03],
 #     # #         [ 1.08953251e-01,  1.05492717e-03 , 3.40814200e-06]]
    
-#     pars =[1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] 
+    pars =[1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] 
 
 
 #     p = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] # optimal set of parameters with the initial conditions variable
 #     Pi = 1.44320757e+03
-#     Ti = 1.92550478e+02    # pars = [1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
+#     Ti = 1.92550478e+02    
 #     S = misfit(260, pars, init_is_pars=True)
 #     print(S)    
     
@@ -228,4 +286,4 @@ if __name__ == "__main__":
 #     labs = [l.get_label() for l in plts]
 #     ax1.legend(plts, labs)
 #     plt.show()
-    pass
+    uniform_error(pars, init_is_pars=True)

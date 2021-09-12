@@ -76,11 +76,11 @@ def plot_benchmark():
     ax1.plot(t_analytical, tmp_analytical , 'r-', label='Analytical')
     ax1.plot(time, temp, 'bx', label = 'Numerical')
 
-    leg = ax.legend()
+    ax.legend()
     ax.legend(loc = 'upper right', frameon = True)
     plt.show()
 
-    return None
+
 
 if __name__ == "__main__":
     
