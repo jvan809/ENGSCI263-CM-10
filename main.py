@@ -23,6 +23,7 @@ if __name__ == "__main__":
     # plot the benchmarking
     plot_benchmark()
     
+    # parameter values found from calibrate.py - neglected to be ran here due to time to run
     pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
     Pi = 1.44320757e+03
     Ti = 1.92550478e+02
@@ -30,13 +31,15 @@ if __name__ == "__main__":
     
     q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
 
-    endTime = tt0[-1]
+    endTime = tt0[-1] # used for starting extrapolation
 
     q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
 
     # interpolated model
     model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 260, aP, bP, P0, M0, T0, bT)
 
+
+    # initial pass numerical solution
     fig, ax1 = plt.subplots() # create subplots
     #fig, (ax1,ax1_) = plt.subplots(2) # create subplots
     ax2 = ax1.twinx()
@@ -54,6 +57,7 @@ if __name__ == "__main__":
     ax1.legend(plts, labs)
     plt.show()
 
+        # these are the scenarios modelled
     # constant maximum in/out flow
     stm1 = lambda t: const_flow(t, 60, 150, endTime, 1000, 0)
     out1 = lambda t: const_flow(t, 60, 150, endTime, 250, 1)
@@ -73,7 +77,7 @@ if __name__ == "__main__":
     names.append("900 tonnes/day constant")
 
 
-
+    # misfit of first model
     fig = figure()
     fig.subplots_adjust()
     ax1 = fig.add_subplot()
@@ -97,7 +101,7 @@ if __name__ == "__main__":
     plt.show()
 
 
- 
+    # plots the 2nd pass model - wrapped up in function to make for less repetition
     def plotBestFit():
         fig = figure()
         fig.subplots_adjust()
@@ -127,6 +131,7 @@ if __name__ == "__main__":
     plt.title("With Initial Value Parameters")
     plt.show()
 
+    # new misfit for 2nd pass
     fig = figure()
     fig.subplots_adjust()
     ax1 = fig.add_subplot()
@@ -149,7 +154,7 @@ if __name__ == "__main__":
 
 
 
-
+    # add predictions for scenarios
     def plotPred(P, T, plts, ax2):
         # predictions start from where interpolation left off
         Pie = P[-1]
@@ -173,6 +178,7 @@ if __name__ == "__main__":
     ax2.legend(plts, labs)
     plt.show()
 
+    # adding ensemble of models
     P, T, plts, ax2 =plotBestFit()
     plotPred(P, T, plts, ax2)
 
@@ -180,7 +186,7 @@ if __name__ == "__main__":
     ax2.legend(plts, labs)
     plt.title("Prediction with Ensemble of Models")
 
-
+    # covariance matricies also generated from calibrate.py - also neglected here due to time to run
     pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
              [-1.08497587e-08,  1.19555937e-09, -5.37910126e-04],
              [-4.06830883e-01, -5.37910126e-04 , 2.40294395e+03]]
@@ -218,9 +224,10 @@ if __name__ == "__main__":
     plot1 = ax1.hist(maxTemps[1], density = True, label = names[1], color = colours[1])[2]
     plot2 = ax2.hist(maxTemps[2], density = True, label = names[2], color = colours[2])[2]
 
+    for i in range(3):
+        print(names[i] + " 95% CI maximum temperature: ", round(np.percentile(maxTemps[i], 95), 1))
         
     plots = plot0 + plot1 + plot2
-    labs = [l.get_label() for l in plots]
     ax0.set_title(names[0])
     ax1.set_title(names[1])
     ax2.set_title(names[2])
