@@ -106,7 +106,7 @@ def ode_solve(model, t0, t1, Pi, Ti, pars, time_eval = None):
     # solve the model ode
     # (dense_output = True allows the sol function to be used which lets you evaluate
     # the solution at any time)
-    ode = solve_ivp(model, time, Xi, args=pars, dense_output=True, t_eval=time_eval)
+    ode = solve_ivp(model, time, Xi, args=pars, t_eval=time_eval)
     
     t = ode.t # array of times
     X = ode.y # array containing both the temperature and pressure solutions

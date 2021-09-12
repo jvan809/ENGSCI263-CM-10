@@ -69,10 +69,10 @@ def fit_model(Tstm):
     Ti = X0[1,0] #|
     
     # Function takes in pressure parameters and evaluates the pressure at time t
-    pressure_solution = lambda t, aP, bP, P0: solve_and_eval(ti, t, Pi, Ti, q_stm, q_out, Tstm, aP, bP, P0, 1, 1, 1)[0]
+    pressure_solution = lambda t, aP, bP, P0: solve_and_eval(ti, t, Pi, Ti, q_stm, q_out, Tstm, aP, bP, P0, 1e11, 1, 0)[0]
 
     # initial guess for the parameters (see elsewhere for details on decision)
-    aP_g, bP_g, P0_g, M0_g, T0_g, bT_g = (1.21433462e-01, 3.06348597e-02 ,6.63684303e+02 ,5.07597613e+3 ,135, 4.02863923e-2)
+    aP_g, bP_g, P0_g, M0_g, T0_g, bT_g = (9.20508397e-03, 1.09508220e-01, 5.56020856e+02, 1.08928148e+05, 1.35644569e+02, 5.77635973e-02)
 
     # Find optimal set of parameters
     pressure_pars,pressure_cov = curve_fit(pressure_solution, tt0, X0[0,:], p0 = [aP_g, bP_g, P0_g])
@@ -111,10 +111,10 @@ def fit_model_initialcondit_as_pars(Tstm):
 
     
     # Function takes in pressure parameters as well as the pressure initial condition and evaluates the pressure at time t
-    pressure_solution = lambda t, Pi, aP, bP, P0: solve_and_eval(ti, t, Pi, X0[1,0], q_stm, q_out, Tstm, aP, bP, P0, 1, 1, 1)[0]
+    pressure_solution = lambda t, Pi, aP, bP, P0: solve_and_eval(ti, t, Pi, X0[1,0], q_stm, q_out, Tstm, aP, bP, P0, 1e11, 1, 0)[0]
 
     # initial guess for the parameters (see elsewhere for details on decision)
-    Pi_g, Ti_g, aP_g, bP_g, P0_g, M0_g, T0_g, bT_g = (X0[0,0], X0[1,0], 1.21433462e-01, 3.06348597e-02 ,6.63684303e+02 ,5.07597613e+3 ,135, 4.02863923e-2)
+    Pi_g, Ti_g, aP_g, bP_g, P0_g, M0_g, T0_g, bT_g = (1.44320757e+03, 1.92550478e+02, 9.20508397e-03, 1.09508220e-01, 5.56020856e+02, 1.08928148e+05, 1.35644569e+02, 5.77635973e-02)
 
     # Find optimal set of parameters
     pressure_pars,pressure_cov = curve_fit(pressure_solution, tt0, X0[0,:], p0 = [Pi_g, aP_g, bP_g, P0_g])
@@ -176,49 +176,56 @@ def solve_and_eval(t0, t, Pi, Ti, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT):
 
 
 if __name__ == "__main__":
-    # p, pcov, tcov  = fit_model_initialcondit_as_pars(260)
-    # print(p)
-    # print(pcov)
-    # print(tcov)
+#     # p, pcov, tcov  = fit_model_initialcondit_as_pars(260)
+#     # print(p)
+#     # print(pcov)
+#     # print(tcov)
+
+#     # Pi = p[0]
+#     # Ti = p[4]
+#     # p = np.delete(p, [0,4])
 
 
-    # p = [1.21156628e-01, 3.06502388e-02, 6.61704220e+02, 5.20398876e+03, 1.44063625e+02, 4.41090440e-02] # OPTIMAL SET OF PARAMETERS
+#     # p = [1.21156628e-01, 3.06502388e-02, 6.61704220e+02, 5.20398876e+03, 1.44063625e+02, 4.41090440e-02] # OPTIMAL SET OF PARAMETERS
    
-    # # pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
-    # #         [-1.08497587e-08,  1.19555937e-09, -5.37910126e-04],
-    # #         [-4.06830883e-01, -5.37910126e-04 , 2.40294395e+03]]
+#     # # pcov = [[ 7.85744566e-05, -1.08497587e-08, -4.06830883e-01],
+#     # #         [-1.08497587e-08,  1.19555937e-09, -5.37910126e-04],
+#     # #         [-4.06830883e-01, -5.37910126e-04 , 2.40294395e+03]]
    
    
-    # # tcov = [[ 4.02138041e+03, -1.75419958e+01,  1.08953251e-01],
-    # #         [-1.75419958e+01,  5.30715709e+00,  1.05492717e-03],
-    # #         [ 1.08953251e-01,  1.05492717e-03 , 3.40814200e-06]]
-    # pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] # optimal set of parameters with the initial conditions variable
-    # Pi = 1.44320757e+03 #| initial conditions computed with the fit model function
-    # Ti = 1.92550478e+02 #|
-    # pars = [1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
-    # S = misfit(260, p, init_is_pars=False)
-    # print(S)    
-    
-    q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
-    q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
+#     # # tcov = [[ 4.02138041e+03, -1.75419958e+01,  1.08953251e-01],
+#     # #         [-1.75419958e+01,  5.30715709e+00,  1.05492717e-03],
+#     # #         [ 1.08953251e-01,  1.05492717e-03 , 3.40814200e-06]]
+   
+#     pars =[1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] 
 
 
-    #model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 260, aP, bP, P0, M0, T0, bT)
+#     p = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02] # optimal set of parameters with the initial conditions variable
+#     Pi = 1.44320757e+03
+#     Ti = 1.92550478e+02    # pars = [1.44320757e+03, 1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 1.92550478e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
+#     S = misfit(260, pars, init_is_pars=True)
+#     print(S)    
+    
+#     q_oil, q_stm, q_water, tt0, X0 = interpolate_data() # get the interpolated data
+#     q_out = lambda t: q_oil(t) + q_water(t) # add the oil and water flow functions
 
-    fig, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
+
+#     model_ = lambda t, X, aP, bP, P0, M0, T0, bT: model(t, X, q_stm, q_out, 260, aP, bP, P0, M0, T0, bT)
+
+#     fig, ax1 = plt.subplots()
+#     ax2 = ax1.twinx()
     
-    test = lambda t: (1 - 0.11051709180756478*np.exp(-0.1*np.exp(-t) - t))
-    tests = test(np.linspace(0,10,10000))
-    plt1 = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
-    plt2 = ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
-    tt, P, T = ode_solve(model, 0, 10, 0.1, 0.9, [-1,0,1,1,1,1,1,1,1], time_eval=np.linspace(0,10,10000))
-    plt3 = ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
-    plt4 = ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
-    plt45 = ax2.plot(tt, tests, "r", label = "Temperature Numerical Sol")
-   # ax1.plot(tt, q_out(tt), "g")
-    plts = plt1 + plt2 + plt3 + plt4 
-    labs = [l.get_label() for l in plts]
-    ax1.legend(plts, labs)
-    plt.show()
-    
+#     # test = lambda t: (1 - 0.11051709180756478*np.exp(-0.1*np.exp(-t) - t))
+#     # tests = test(np.linspace(0,10,10000))
+#     plt1 = ax1.plot(tt0, X0[0], "k.", label = "Pressure Data")
+#     plt2 = ax2.plot(tt0, X0[1], "r.", label = "Temperature Data")
+#     tt, P, T = ode_solve(model_, tt0[0], 400, Pi, Ti, p, time_eval=np.linspace(tt0[0],400, 1000))
+#     plt3 = ax1.plot(tt, P, "k", label = "Pressure Numerical Sol")    
+#     plt4 = ax2.plot(tt, T, "r", label = "Temperature Numerical Sol")
+#     # plt45 = ax2.plot(tt, tests, "r", label = "Temperature Numerical Sol")
+#    # ax1.plot(tt, q_out(tt), "g")
+#     plts = plt1 + plt2 + plt3 + plt4 
+#     labs = [l.get_label() for l in plts]
+#     ax1.legend(plts, labs)
+#     plt.show()
+    pass
