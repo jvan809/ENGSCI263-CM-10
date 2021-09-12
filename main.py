@@ -5,6 +5,7 @@ from model_fitting.cm_solver_functions import *
 from data.interpolate_data import *
 from matplotlib.pyplot import *
 from plot_data import *
+from sensitivityAnalysis import *
 # this file should be able to produce all figures included in reports **without modification**
 # Graphs Used in template report:
 #   production & pressure - could be production / injection + temp?
@@ -99,8 +100,18 @@ if __name__ == "__main__":
         tt, P, T = ode_solve(m, tt0[-1], finalTime, Pie, Tie, pp)
         plts += ax2.plot(tt, T, col, label = "Temperature Prediction " + names[i])
 
+<<<<<<< HEAD
 
     plt.show()
+=======
+    plt.legend()
+    plt.xlabel("Time (days)")
+    plt.ylabel("Temperature (celsius)")
+    ax1.set_ylabel("Pressure (kPa)")
+    plt.title("Three temperature scenarios")
+    plt.show()
+
+>>>>>>> 1f0541236772dff086cf5d0494815bac351b3954
 
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
@@ -136,7 +147,7 @@ if __name__ == "__main__":
     ax1.legend(plts, labs)
 
 
-    plt.show()
+    #plt.show()
 
     # plots the pdf histogram
     fig, ax1 = plt.subplots()
@@ -160,4 +171,8 @@ if __name__ == "__main__":
     ax0.legend(names)
     ax0.legend(plots, labs)
     plt.show()
+
+    # Calling convergence analysis function (this function plots the convegence analysis)
+    sensitivityAnalysis()
+
 
