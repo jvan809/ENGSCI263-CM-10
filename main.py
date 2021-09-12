@@ -4,7 +4,7 @@ from prediction.cycle import *
 from model_fitting.cm_solver_functions import *
 from data.interpolate_data import *
 from matplotlib.pyplot import *
-
+from plot_data import *
 # this file should be able to produce all figures included in reports **without modification**
 # Graphs Used in template report:
 #   production & pressure - could be production / injection + temp?
@@ -20,6 +20,11 @@ from matplotlib.pyplot import *
 
 
 if __name__ == "__main__":
+    # plot the pilot data given to us
+    plot_given_TP_data() # temperature and pressure data
+    plot_given_q_data() # inflow and outflow data
+    
+    
     pp = [1.20508397e-01, 3.09508220e-02, 6.56020856e+02, 5.08928148e+03, 1.45644569e+02, 4.77635973e-02]
     Pi = 1.44320757e+03
     Ti = 1.92550478e+02
@@ -121,5 +126,21 @@ if __name__ == "__main__":
         
     plt.legend(names)
     plt.title("Max Temp reached")
+    plt.show()
+
+
+    plots = [0,0,0]
+    fig, (ax0,ax1,ax2) = plt.subplots(3)
+    colours = ["b", "tab:orange", "g"]
+    
+    plot0 = ax0.hist(maxTemps[0], density = True, label = names[0], color = colours[0])[2]
+    plot1 = ax1.hist(maxTemps[1], density = True, label = names[1], color = colours[1])[2]
+    plot2 = ax2.hist(maxTemps[2], density = True, label = names[2], color = colours[2])[2]
+
+        
+    plots = plot0 + plot1 + plot2
+    labs = [l.get_label() for l in plots]
+    ax0.legend(names)
+    ax0.legend(plots, labs)
     plt.show()
 
