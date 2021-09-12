@@ -35,3 +35,42 @@
 			Tests: solve_ode(model, t0, t1, Pi, Ti, pars, time_eval = None) From : cm_solver_functions.py
 1.		model_test
 			Tests: model(t, X, q_stm, q_out, Tstm, aP, bP, P0, M0, T0, bT) From : cm_solver_functions.py
+			
+#cycle.py
+	Contains the functions:
+1.		const_flow
+			gives injection / output volume at specified time 
+1.		interp_flow
+			
+#uncertanity.py 
+	Contains the functions:
+1.		findGridBorders
+
+1.		gridSample
+
+1.		normSample
+
+#benchmark.py
+	Contains the functions:
+1.		plot_benchmark
+			Analytical pressure solution for parameters [-1,0,1,1,1,1,1,1,1]
+1.		temperature_analytical
+			Analytical temperature solution for parameters [-1,0,1,1,1,1,1,1,1]
+1.		pressure_analytical
+			Compare analytical and numerical solutions.
+
+#cm_solver_functions.py 
+	Contains the functions:
+1.		model
+			The model giving the derivaitves for the differential equation
+1.		ode_solve
+			Finds the solution to the model differential equation
+1.		improved_euler
+			Solve an ODE numerically.
+			
+#interpolate_data.py
+	Contains the functions:
+1.		get_data
+			gets data from a txt file like the ones given for the nz pilot data
+1.		interpolate_data
+			Interpolates the nz pilot thermal recovery data
